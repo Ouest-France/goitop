@@ -1,12 +1,7 @@
 package goitop
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
 type VM struct {
@@ -30,39 +25,7 @@ func (c *Client) CreateVM(name, org, env string) (string, error) {
 		},
 	}
 
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return "", err
-	}
-
-	form := url.Values{
-		"json_data": []string{string(jsonPayload)},
-	}
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/webservices/rest.php?version=1.3", c.Address), strings.NewReader(form.Encode()))
-	if err != nil {
-		return "", err
-	}
-	req.SetBasicAuth(c.User, c.Password)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return "", fmt.Errorf("Create VM request failed with status code %d", resp.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	var result APIResponse
-	err = json.Unmarshal(body, &result)
+	result, err := Request(c, payload)
 	if err != nil {
 		return "", err
 	}
@@ -99,39 +62,7 @@ func (c *Client) UpdateVM(id, name, org, env string) error {
 		},
 	}
 
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-
-	form := url.Values{
-		"json_data": []string{string(jsonPayload)},
-	}
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/webservices/rest.php?version=1.3", c.Address), strings.NewReader(form.Encode()))
-	if err != nil {
-		return err
-	}
-	req.SetBasicAuth(c.User, c.Password)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("Update VM request failed with status code %d", resp.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	var result APIResponse
-	err = json.Unmarshal(body, &result)
+	result, err := Request(c, payload)
 	if err != nil {
 		return err
 	}
@@ -149,42 +80,14 @@ func (c *Client) UpdateVM(id, name, org, env string) error {
 
 func (c *Client) GetVM(id string) (VM, error) {
 
-	payload := map[string]string{
+	payload := map[string]interface{}{
 		"operation":     "core/get",
 		"class":         "VirtualMachine",
 		"key":           id,
 		"output_fields": "id,name,org_id,env_id",
 	}
 
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return VM{}, err
-	}
-
-	form := url.Values{
-		"json_data": []string{string(jsonPayload)},
-	}
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/webservices/rest.php?version=1.3", c.Address), strings.NewReader(form.Encode()))
-	if err != nil {
-		return VM{}, err
-	}
-	req.SetBasicAuth(c.User, c.Password)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return VM{}, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return VM{}, err
-	}
-
-	var result APIResponse
-	err = json.Unmarshal(body, &result)
+	result, err := Request(c, payload)
 	if err != nil {
 		return VM{}, err
 	}
@@ -218,41 +121,7 @@ func (c *Client) DeleteVM(id string) error {
 		"key":       id,
 	}
 
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-
-	form := url.Values{
-		"json_data": []string{string(jsonPayload)},
-	}
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/webservices/rest.php?version=1.3", c.Address), strings.NewReader(form.Encode()))
-	if err != nil {
-		return err
-	}
-	req.SetBasicAuth(c.User, c.Password)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("Delete VM request failed with status code %d", resp.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-	var result APIResponse
-	err = json.Unmarshal(body, &result)
+	result, err := Request(c, payload)
 	if err != nil {
 		return err
 	}
