@@ -5,13 +5,14 @@ import (
 )
 
 type VM struct {
-	Name  string
-	OrgID string
-	EnvID string
-	ID    string
+	Name      string
+	OrgID     string
+	EnvID     string
+	ClusterID string
+	ID        string
 }
 
-func (c *Client) CreateVM(name, org, env string) (string, error) {
+func (c *Client) CreateVM(name, org, env, cluster string) (string, error) {
 
 	payload := map[string]interface{}{
 		"operation":     "core/create",
@@ -19,9 +20,10 @@ func (c *Client) CreateVM(name, org, env string) (string, error) {
 		"class":         "VirtualMachine",
 		"output_fields": "id",
 		"fields": map[string]string{
-			"name":   name,
-			"org_id": org,
-			"env_id": env,
+			"name":       name,
+			"org_id":     org,
+			"env_id":     env,
+			"cluster_id": cluster,
 		},
 	}
 
@@ -47,7 +49,7 @@ func (c *Client) CreateVM(name, org, env string) (string, error) {
 	return firstObject.Key, nil
 }
 
-func (c *Client) UpdateVM(id, name, org, env string) error {
+func (c *Client) UpdateVM(id, name, org, env, cluster string) error {
 
 	payload := map[string]interface{}{
 		"operation":     "core/update",
@@ -56,9 +58,10 @@ func (c *Client) UpdateVM(id, name, org, env string) error {
 		"key":           id,
 		"output_fields": "id",
 		"fields": map[string]string{
-			"name":   name,
-			"org_id": org,
-			"env_id": env,
+			"name":       name,
+			"org_id":     org,
+			"env_id":     env,
+			"cluster_id": cluster,
 		},
 	}
 
@@ -84,7 +87,7 @@ func (c *Client) GetVM(id string) (VM, error) {
 		"operation":     "core/get",
 		"class":         "VirtualMachine",
 		"key":           id,
-		"output_fields": "id,name,org_id,env_id",
+		"output_fields": "id,name,org_id,env_id,cluster_id",
 	}
 
 	result, err := Request(c, payload)
@@ -103,10 +106,11 @@ func (c *Client) GetVM(id string) (VM, error) {
 	}
 
 	vm := VM{
-		ID:    firstObject.Fields["id"].(string),
-		Name:  firstObject.Fields["name"].(string),
-		OrgID: firstObject.Fields["org_id"].(string),
-		EnvID: firstObject.Fields["env_id"].(string),
+		ID:        firstObject.Fields["id"].(string),
+		Name:      firstObject.Fields["name"].(string),
+		OrgID:     firstObject.Fields["org_id"].(string),
+		EnvID:     firstObject.Fields["env_id"].(string),
+		ClusterID: firstObject.Fields["cluster_id"].(string),
 	}
 
 	return vm, nil
