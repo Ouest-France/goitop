@@ -11,9 +11,15 @@ type VM struct {
 	ClusterID             string
 	ExploitationServiceID string
 	ID                    string
+	Backup                string
+	BackupID              string
 }
 
-func (c *Client) CreateVM(name, org, env, cluster, exploitationservice string) (string, error) {
+func (c *Client) CreateVM(name, org_id, env_id, cluster_id, exploitationservice_id, backup, backup_id string) (string, error) {
+
+	if backup != "yes" && backup != "no" {
+		return "", fmt.Errorf("backup parameter must be yes or no, got %q", backup)
+	}
 
 	payload := map[string]interface{}{
 		"operation":     "core/create",
@@ -22,10 +28,12 @@ func (c *Client) CreateVM(name, org, env, cluster, exploitationservice string) (
 		"output_fields": "id",
 		"fields": map[string]string{
 			"name":                   name,
-			"org_id":                 org,
-			"env_id":                 env,
-			"cluster_id":             cluster,
-			"exploitationservice_id": exploitationservice,
+			"org_id":                 org_id,
+			"env_id":                 env_id,
+			"cluster_id":             cluster_id,
+			"exploitationservice_id": exploitationservice_id,
+			"backup":                 backup,
+			"backup_id":              backup_id,
 		},
 	}
 
@@ -51,7 +59,11 @@ func (c *Client) CreateVM(name, org, env, cluster, exploitationservice string) (
 	return firstObject.Key, nil
 }
 
-func (c *Client) UpdateVM(id, name, org, env, cluster, exploitationservice string) error {
+func (c *Client) UpdateVM(id, name, org_id, env_id, cluster_id, exploitationservice_id, backup, backup_id string) error {
+
+	if backup != "yes" && backup != "no" {
+		return fmt.Errorf("backup parameter must be yes or no, got %q", backup)
+	}
 
 	payload := map[string]interface{}{
 		"operation":     "core/update",
@@ -61,10 +73,12 @@ func (c *Client) UpdateVM(id, name, org, env, cluster, exploitationservice strin
 		"output_fields": "id",
 		"fields": map[string]string{
 			"name":                   name,
-			"org_id":                 org,
-			"env_id":                 env,
-			"cluster_id":             cluster,
-			"exploitationservice_id": exploitationservice,
+			"org_id":                 org_id,
+			"env_id":                 env_id,
+			"cluster_id":             cluster_id,
+			"exploitationservice_id": exploitationservice_id,
+			"backup":                 backup,
+			"backup_id":              backup_id,
 		},
 	}
 
@@ -90,7 +104,7 @@ func (c *Client) GetVM(id string) (VM, error) {
 		"operation":     "core/get",
 		"class":         "VirtualMachine",
 		"key":           id,
-		"output_fields": "id,name,org_id,env_id,cluster_id,exploitationservice_id",
+		"output_fields": "id,name,org_id,env_id,cluster_id,exploitationservice_id,backup,backup_id",
 	}
 
 	result, err := Request(c, payload)
@@ -115,6 +129,8 @@ func (c *Client) GetVM(id string) (VM, error) {
 		EnvID:                 firstObject.Fields["env_id"].(string),
 		ClusterID:             firstObject.Fields["cluster_id"].(string),
 		ExploitationServiceID: firstObject.Fields["exploitationservice_id"].(string),
+		Backup:                firstObject.Fields["backup"].(string),
+		BackupID:              firstObject.Fields["backup_id"].(string),
 	}
 
 	return vm, nil
@@ -126,7 +142,7 @@ func (c *Client) GetAllVM() ([]VM, error) {
 		"operation":     "core/get",
 		"class":         "VirtualMachine",
 		"key":           "SELECT VirtualMachine",
-		"output_fields": "id,name,org_id,env_id,cluster_id,exploitationservice_id",
+		"output_fields": "id,name,org_id,env_id,cluster_id,exploitationservice_id,backup,backup_id",
 	}
 
 	result, err := Request(c, payload)
@@ -147,6 +163,8 @@ func (c *Client) GetAllVM() ([]VM, error) {
 			EnvID:                 object.Fields["env_id"].(string),
 			ClusterID:             object.Fields["cluster_id"].(string),
 			ExploitationServiceID: object.Fields["exploitationservice_id"].(string),
+			Backup:                object.Fields["backup"].(string),
+			BackupID:              object.Fields["backup_id"].(string),
 		})
 	}
 
