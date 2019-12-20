@@ -22,7 +22,7 @@ func TestClient_GetAllVM(t *testing.T) {
 func TestClient_VMCRUD(t *testing.T) {
 
 	c := NewClient(os.Getenv("GOITOP_ADDR"), os.Getenv("GOITOP_USER"), os.Getenv("GOITOP_PASSWORD"))
-	id, err := c.CreateVM("goitop", "9", "5", "1318", "5", "yes", "1")
+	id, err := c.CreateVM("goitop", "9", "5", "1318", "5", "yes", "1", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,6 +51,7 @@ func TestClient_VMCRUD(t *testing.T) {
 		ID:                    id,
 		Backup:                "yes",
 		BackupID:              "1",
+		Description:           "goitop_test",
 	}
 
 	eq := reflect.DeepEqual(gotVM, wantVM)
@@ -58,7 +59,7 @@ func TestClient_VMCRUD(t *testing.T) {
 		t.Fatalf("VM created and VM read are not equals: got %v  want %v", gotVM, wantVM)
 	}
 
-	err = c.UpdateVM(id, "goitop", "9", "4", "1318", "1", "no", "0")
+	err = c.UpdateVM(id, "goitop", "9", "4", "1318", "1", "no", "0", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,6 +78,7 @@ func TestClient_VMCRUD(t *testing.T) {
 		ID:                    id,
 		Backup:                "no",
 		BackupID:              "0",
+		Description:           "goitop_test",
 	}
 
 	eq = reflect.DeepEqual(gotVM, wantVM)
